@@ -107,6 +107,14 @@ session2 <- select(sessions,subjectid, session_id,
 
 sessions_long <- full_join(session2, sessions_lags, by=c("subjectid", "session_id"))
 
+#change data frame  for sas
+names(sessions_long)[names(sessions_long)=="subjectid"] <- "SID"
+names(sessions_long)[names(sessions_long)=="session_id"] <- "Session"
+names(sessions_long)[names(sessions_long)=="sys_base_mean"] <- "SysBP0"
+names(sessions_long)[names(sessions_long)=="dia_base_mean"] <- "DiasBP0"
+names(sessions_long)[names(sessions_long)=="mean_arterial_base"] <- "Arterial0"
+
+
 write.csv(sessions_long, "sessions.csv", na="")
 
 
