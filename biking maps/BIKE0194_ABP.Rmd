@@ -1,0 +1,196 @@
+---
+title: "BIKE0194 ABP"
+output: pdf_document
+---
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+setwd("/Applications/Rdata/ABP_y3")
+#read csv data
+abp <- read.csv("b1118.csv")
+
+library(ggplot2)
+library(dplyr)
+#library(easyGgplot2)
+library(knitr)
+library(kableExtra)
+
+abp_s1 <- subset(abp, session_id == "1")
+abp_s2 <- subset(abp, session_id == "2")
+abp_s3 <- subset(abp, session_id == "3")
+abp_s4 <- subset(abp, session_id == "4")
+abp_s5 <- subset(abp, session_id == "5")
+abp_s6 <- subset(abp, session_id == "6")
+
+
+
+```
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='hide', fig.align='center', fig.height= 5, fig.width=7}
+
+ggplot(abp_s1) + geom_point(aes(x = timeA, y = diastolic_bp, colour = "diastolic_bp"), size = 2)+ geom_point(aes(x = timeA, y = systolic_bp, colour = "systolic_bp"), size = 2) +
+theme(plot.title = element_text(size = 18, face = "bold"), axis.text.x = element_text(angle = 60, hjust = 1), legend.text=element_text(size=12), axis.title = element_text(size=14), legend.title=element_blank()) + ggtitle("Session 1") + xlab("Time") + ylab ("Blood Pressure")
+
+```
+
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='asis'}
+
+
+sleep <- filter(abp_s1,sleep_wake == "sleep")
+  
+wake <- filter(abp_s1,sleep_wake == "wake")
+  
+  tf_avg <- paste(round(mean(abp_s1$systolic_bp)), round(mean(abp_s1$diastolic_bp)), sep = " / ")
+  sl_avg <- paste(round(mean(sleep$systolic_bp)), round(mean(sleep$diastolic_bp)), sep = " / ")
+  wa_avg <- paste(round(mean(wake$systolic_bp)), round(mean(wake$diastolic_bp)), sep = " / ")
+  
+  bikeavg <- data.frame(Time = c("24hr", "Sleep", "Awake"), BP = c(tf_avg, sl_avg, wa_avg))
+  
+  tf <- ifelse(mean(abp_s1$systolic_bp)>130 & mean(abp_s1$diastolic_bp)>80, "Above Normal", "Normal")
+  sl <- ifelse(mean(sleep$systolic_bp)>120 & mean(sleep$diastolic_bp)>70, "Above Normal", "Normal")
+  aw <- ifelse(mean(wake$systolic_bp)>135 & mean(wake$diastolic_bp)>85, "Above Normal", "Normal")
+  
+  bikeavg[,3] <- data.frame(Goal = c("<130/80", "<120/70", "<135/85"))
+  bikeavg[,4] <- data.frame(Status = c(tf, sl, aw))
+  
+ bikeavg %>% kable( caption = "Summary", align = "c", format = "markdown")
+  
+```
+
+\newpage 
+
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='hide', fig.align='center', fig.height= 5, fig.width=7}
+
+ggplot(abp_s2) + geom_point(aes(x = timeA, y = diastolic_bp, colour = "diastolic_bp"), size = 2)+ geom_point(aes(x = timeA, y = systolic_bp, colour = "systolic_bp"), size = 2) +
+theme(plot.title = element_text(size = 18, face = "bold"), axis.text.x = element_text(angle = 60, hjust = 1), legend.text=element_text(size=12), axis.title = element_text(size=14), legend.title=element_blank()) + ggtitle("Session 2") + xlab("Time") + ylab ("Blood Pressure")
+
+```
+
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='asis'}
+
+
+sleep <- filter(abp_s2,sleep_wake == "sleep")
+  
+wake <- filter(abp_s2,sleep_wake == "wake")
+  
+  tf_avg <- paste(round(mean(abp_s2$systolic_bp)), round(mean(abp_s2$diastolic_bp)), sep = " / ")
+  sl_avg <- paste(round(mean(sleep$systolic_bp)), round(mean(sleep$diastolic_bp)), sep = " / ")
+  wa_avg <- paste(round(mean(wake$systolic_bp)), round(mean(wake$diastolic_bp)), sep = " / ")
+  
+  bikeavg <- data.frame(Time = c("24hr", "Sleep", "Awake"), BP = c(tf_avg, sl_avg, wa_avg))
+  
+  tf <- ifelse(mean(abp_s2$systolic_bp)>130 & mean(abp_s2$diastolic_bp)>80, "Above Normal", "Normal")
+  sl <- ifelse(mean(sleep$systolic_bp)>120 & mean(sleep$diastolic_bp)>70, "Above Normal", "Normal")
+  aw <- ifelse(mean(wake$systolic_bp)>135 & mean(wake$diastolic_bp)>85, "Above Normal", "Normal")
+  
+  bikeavg[,3] <- data.frame(Goal = c("<130/80", "<120/70", "<135/85"))
+  bikeavg[,4] <- data.frame(Status = c(tf, sl, aw))
+  
+ bikeavg %>% kable( caption = "Summary", align = "c", format = "markdown")
+  
+```
+
+\newpage
+
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='hide', fig.align='center', fig.height= 5, fig.width=7}
+
+ggplot(abp_s3) + geom_point(aes(x = timeA, y = diastolic_bp, colour = "diastolic_bp"), size = 2)+ geom_point(aes(x = timeA, y = systolic_bp, colour = "systolic_bp"), size = 2) +
+theme(plot.title = element_text(size = 18, face = "bold"), axis.text.x = element_text(angle = 60, hjust = 1), legend.text=element_text(size=12), axis.title = element_text(size=14), legend.title=element_blank()) + ggtitle("Session 3") + xlab("Time") + ylab ("Blood Pressure")
+
+```
+
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='asis'}
+
+
+sleep <- filter(abp_s3,sleep_wake == "sleep")
+  
+wake <- filter(abp_s3,sleep_wake == "wake")
+  
+  tf_avg <- paste(round(mean(abp_s3$systolic_bp)), round(mean(abp_s3$diastolic_bp)), sep = " / ")
+  sl_avg <- paste(round(mean(sleep$systolic_bp)), round(mean(sleep$diastolic_bp)), sep = " / ")
+  wa_avg <- paste(round(mean(wake$systolic_bp)), round(mean(wake$diastolic_bp)), sep = " / ")
+  
+  bikeavg <- data.frame(Time = c("24hr", "Sleep", "Awake"), BP = c(tf_avg, sl_avg, wa_avg))
+  
+  tf <- ifelse(mean(abp_s3$systolic_bp)>130 & mean(abp_s3$diastolic_bp)>80, "Above Normal", "Normal")
+  sl <- ifelse(mean(sleep$systolic_bp)>120 & mean(sleep$diastolic_bp)>70, "Above Normal", "Normal")
+  aw <- ifelse(mean(wake$systolic_bp)>135 & mean(wake$diastolic_bp)>85, "Above Normal", "Normal")
+  
+  bikeavg[,3] <- data.frame(Goal = c("<130/80", "<120/70", "<135/85"))
+  bikeavg[,4] <- data.frame(Status = c(tf, sl, aw))
+  
+ bikeavg %>% kable( caption = "Summary", align = "c", format = "markdown")
+  
+```
+
+\newpage
+
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='hide', fig.align='center', fig.height= 5, fig.width=7}
+
+ggplot(abp_s4) + geom_point(aes(x = timeA, y = diastolic_bp, colour = "diastolic_bp"), size = 2)+ geom_point(aes(x = timeA, y = systolic_bp, colour = "systolic_bp"), size = 2) +
+theme(plot.title = element_text(size = 18, face = "bold"), axis.text.x = element_text(angle = 60, hjust = 1), legend.text=element_text(size=12), axis.title = element_text(size=14), legend.title=element_blank()) + ggtitle("Session 4") + xlab("Time") + ylab ("Blood Pressure")
+
+```
+
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='asis'}
+
+
+sleep <- filter(abp_s4,sleep_wake == "sleep")
+  
+wake <- filter(abp_s4,sleep_wake == "wake")
+  
+  tf_avg <- paste(round(mean(abp_s4$systolic_bp)), round(mean(abp_s4$diastolic_bp)), sep = " / ")
+  sl_avg <- paste(round(mean(sleep$systolic_bp)), round(mean(sleep$diastolic_bp)), sep = " / ")
+  wa_avg <- paste(round(mean(wake$systolic_bp)), round(mean(wake$diastolic_bp)), sep = " / ")
+  
+  bikeavg <- data.frame(Time = c("24hr", "Sleep", "Awake"), BP = c(tf_avg, sl_avg, wa_avg))
+  
+  tf <- ifelse(mean(abp_s4$systolic_bp)>130 & mean(abp_s4$diastolic_bp)>80, "Above Normal", "Normal")
+  sl <- ifelse(mean(sleep$systolic_bp)>120 & mean(sleep$diastolic_bp)>70, "Above Normal", "Normal")
+  aw <- ifelse(mean(wake$systolic_bp)>135 & mean(wake$diastolic_bp)>85, "Above Normal", "Normal")
+  
+  bikeavg[,3] <- data.frame(Goal = c("<130/80", "<120/70", "<135/85"))
+  bikeavg[,4] <- data.frame(Status = c(tf, sl, aw))
+  
+ bikeavg %>% kable( caption = "Summary", align = "c", format = "markdown")
+    
+```
+
+\newpage
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='hide', fig.align='center', fig.height= 5, fig.width=7}
+
+ggplot(abp_s5) + geom_point(aes(x = timeA, y = diastolic_bp, colour = "diastolic_bp"), size = 2)+ geom_point(aes(x = timeA, y = systolic_bp, colour = "systolic_bp"), size = 2) +
+theme(plot.title = element_text(size = 18, face = "bold"), axis.text.x = element_text(angle = 60, hjust = 1), legend.text=element_text(size=12), axis.title = element_text(size=14), legend.title=element_blank()) + ggtitle("Session 5") + xlab("Time") + ylab ("Blood Pressure")
+
+```
+
+
+```{r, echo=FALSE, message=TRUE, warning=TRUE, results='asis'}
+
+
+sleep <- filter(abp_s5,sleep_wake == "sleep")
+  
+wake <- filter(abp_s5,sleep_wake == "wake")
+  
+  tf_avg <- paste(round(mean(abp_s5$systolic_bp)), round(mean(abp_s5$diastolic_bp)), sep = " / ")
+  sl_avg <- paste(round(mean(sleep$systolic_bp)), round(mean(sleep$diastolic_bp)), sep = " / ")
+  wa_avg <- paste(round(mean(wake$systolic_bp)), round(mean(wake$diastolic_bp)), sep = " / ")
+  
+  bikeavg <- data.frame(Time = c("24hr", "Sleep", "Awake"), BP = c(tf_avg, sl_avg, wa_avg))
+  
+  tf <- ifelse(mean(abp_s5$systolic_bp)>130 & mean(abp_s5$diastolic_bp)>80, "Above Normal", "Normal")
+  sl <- ifelse(mean(sleep$systolic_bp)>120 & mean(sleep$diastolic_bp)>70, "Above Normal", "Normal")
+  aw <- ifelse(mean(wake$systolic_bp)>135 & mean(wake$diastolic_bp)>85, "Above Normal", "Normal")
+  
+  bikeavg[,3] <- data.frame(Goal = c("<130/80", "<120/70", "<135/85"))
+  bikeavg[,4] <- data.frame(Status = c(tf, sl, aw))
+  
+ bikeavg %>% kable( caption = "Summary", align = "c", format = "markdown")
+  
+```
