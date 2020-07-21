@@ -1,0 +1,163 @@
+---
+title: "BIKE0203_plots"
+output: pdf_document
+---
+
+#BIKE0203 Time series plots
+
+Thank you for participating in Columbia University's Biking Study on Potential Inhaled Dose and Cardiovascular Indicators. In this PDF you will find various plots from your sessions.  
+
+The dates and times of your commutes are in the table below. On the plot, the dark blue is your morning commute, light blue is evening commute, and blue-grey is non-biking times.
+
+Date     | Start of Morning Ride  | End of Morning Ride | Start of Evening Ride | End of Evening Ride
+---------| ---------------| ------------| --------| -------
+11/26/19  | 9:19 am       |  9:48 am     |  5:25 pm | 5:59 pm
+12/3/19   | 9:11 am       |  9:47 am     |  9:21 pm | 9:51 pm
+12/5/19   | 9:13 am       |  9:44 am     |  6:08 pm | 6:41 pm
+12/8/19   | 11:50 am      |  12:21 am    |  5:30 pm | 5:57 pm
+
+
+
+## PM~2.5~ and Black Carbon Concentration Plots
+
+The first plots show the measured amount of particulate matter (PM~2.5~) and black carbon (BC) in micrograms per cubic meter during your sessions. PM~2.5~ is particulate matter with an aerodynamic diameter less than 2.5 microns. In general, these fine particles stem from the burning of fuels. Therefore, vehicle exhaust and the burning of heating oils are some of the main sources in NYC. Indoor sources of PM~2.5~ are often a result of cooking, burning candles/fireplaces, and smoking. 
+
+Black carbon is a component of fine particulate matter. These fine particles are formed as a result of incomplete combustion. One major source of black carbon in the city is from mobile vehicles which is why your exposure to black carbon is normally distinguishably higher during your commute. Additionally, the burning of diesel, especially in older diesel trucks, produces more black carbon which is why exposure is typically higher around truck routes and bridges. 
+
+##Minute Ventilation plots
+
+The next plot shows your minute ventilation in liters per minute during your session. It is essentially a measurement of how hard you are breathing, with the higher ventilation rate equaling heavier breathing. Minute ventilation varies between individuals based on lung size and level of fitness, with larger and more fit individuals being able to achieve higher rates. 
+
+The Hexoskin Shirt collects the minute ventilation data through sensors, therefore, the fit of the shirt is very important. If the bands and sensors are not in contact with the skin, or the shirt shifted, the shirt cannot generate accurate data. We used the data collected from the validation of the shirt to help identify and correct these instances where we could. 
+
+##PM~2.5~ and BC Dose plots
+
+The last plots shows the potential inhaled dose of PM~2.5~ and BC in nanograms per minute for each of your commutes. The potential inhaled dose is a function of the amount of PM~2.5~/BC in the air multiplied by your minute ventilation at the time of exposure. Calculating dose allows us to estimate the amount of PM~2.5~/BC inhaled during your commute. 
+
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+#library(easyGgplot2)
+
+
+bike1125_plot <- read.csv("bike1125_plot.csv")
+
+bike1125_plot$TimeA <- as.POSIXct(bike1125_plot$datetime)
+
+
+bike1125_sec_s1 <- subset(bike1125_plot, session== "1")
+bike1125_sec_s2 <- subset(bike1125_plot, session== "2")
+bike1125_sec_s3 <- subset(bike1125_plot, session== "3")
+bike1125_sec_s4 <- subset(bike1125_plot, session== "4")
+bike1125_sec_s5 <- subset(bike1125_plot, session== "5")
+bike1125_sec_s6 <- subset(bike1125_plot, session== "6")
+
+
+
+```
+
+##Session 1
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+
+ggplot(bike1125_sec_s1, aes(x= TimeA , y= bc.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("Black Carbon (ug/m^3)") + ggtitle("Black Carbon: Session 1") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s1, aes(x= TimeA , y= pm.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("PM 2.5 (ug/m^3)") + ggtitle("PM 2.5: Session 1") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ ggplot(bike1125_sec_s1, aes(x= TimeA , y= ve.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("Minute Ventilation (L/min)") + ggtitle("Minute Ventilation: Session 1") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s1, aes(x= TimeA , y= bc.dose, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("BC dose ng/min") + ggtitle("Black Carbon Dose: Session 1") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s1, aes(x= TimeA , y= pm.dose, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("PM 2.5 dose ng/min") + ggtitle("PM 2.5 Dose: Session 1") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+```
+
+##Session 2
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+
+ggplot(bike1125_sec_s2, aes(x= TimeA , y= bc.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("Black Carbon (ug/m^3)") + ggtitle("Black Carbon: Session 2") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s2, aes(x= TimeA , y= pm.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("PM 2.5 (ug/m^3)") + ggtitle("PM 2.5: Session 2") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ ggplot(bike1125_sec_s2, aes(x= TimeA , y= ve.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("Minute Ventilation (L/min)") + ggtitle("Minute Ventilation: Session 2") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s2, aes(x= TimeA , y= bc.dose, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("BC dose ng/min") + ggtitle("Black Carbon Dose: Session 2") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s2, aes(x= TimeA , y= pm.dose, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("PM 2.5 dose ng/min") + ggtitle("PM 2.5 Dose: Session 2") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+```
+
+##Session 3
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+
+ggplot(bike1125_sec_s3, aes(x= TimeA , y= bc.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("Black Carbon (ug/m^3)") + ggtitle("Black Carbon: Session 3") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s3, aes(x= TimeA , y= pm.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("PM 2.5 (ug/m^3)") + ggtitle("PM 2.5: Session 3") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ ggplot(bike1125_sec_s3, aes(x= TimeA , y= ve.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("Minute Ventilation (L/min)") + ggtitle("Minute Ventilation: Session 3") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s3, aes(x= TimeA , y= bc.dose, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("BC dose ng/min") + ggtitle("Black Carbon Dose: Session 3") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s3, aes(x= TimeA , y= pm.dose, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("PM 2.5 dose ng/min") + ggtitle("PM 2.5 Dose: Session 3") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+```
+
+##Session 4
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+
+ggplot(bike1125_sec_s4, aes(x= TimeA , y= bc.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("Black Carbon (ug/m^3)") + ggtitle("Black Carbon: Session 4") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s4, aes(x= TimeA , y= pm.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("PM 2.5 (ug/m^3)") + ggtitle("PM 2.5: Session 4") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ ggplot(bike1125_sec_s4, aes(x= TimeA , y= ve.clean, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("Minute Ventilation (L/min)") + ggtitle("Minute Ventilation: Session 4") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s4, aes(x= TimeA , y= bc.dose, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("BC dose ng/min") + ggtitle("Black Carbon Dose: Session 4") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+ggplot(bike1125_sec_s4, aes(x= TimeA , y= pm.dose, col = biking)) + geom_point() + 
+  xlab("Time of Day") + ylab("PM 2.5 dose ng/min") + ggtitle("PM 2.5 Dose: Session 4") + 
+  theme(legend.position = "none", axis.text.x=element_text(size=14), axis.text.y= element_text(size=14), axis.title.x= element_text(size=14), axis.title.y= element_text(size=14), title= element_text(size=14))
+
+```
+

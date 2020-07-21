@@ -1,0 +1,455 @@
+---
+title: "BIKE0203 Maps"
+output: html_document
+---
+
+#BIKE0203 Biking Maps
+
+Thank you for participating in Columbia University's Biking Study on Potential Inhaled Dose and Cardiovascular Indicators. On this page you will find various maps from your sessions. These maps do not contain all the data you collected, but don't worry, all of your data is still being used! To use the maps, un-click all the boxes and then individually click the layer you wish to view. This will give you the correct legend box in the map. 
+
+
+The dates and times of your commutes are in the table below.
+
+Date     | Start of Morning Ride  | End of Morning Ride | Start of Evening Ride | End of Evening Ride
+---------| ---------------| ------------| --------| -------
+11/26/19  | 9:19 am       |  9:48 am     |  5:25 pm | 5:59 pm
+12/3/19   | 9:11 am       |  9:47 am     |  9:21 pm | 9:51 pm
+12/5/19   | 9:13 am       |  9:44 am     |  6:08 pm | 6:41 pm
+12/8/19   | 11:50 am      |  12:21 am    |  5:30 pm | 5:57 pm
+
+
+
+## PM~2.5~ and Black Carbon Concentration Maps
+
+The first map show the measured amount of particulate matter (PM~2.5~) and black carbon (BC) in micrograms per cubic meter during your commutes. First, deselect all layers and then click on one layer at a time to view the different rides and parameters. PM~2.5~ is particulate matter with an aerodynamic diameter less than 2.5 microns. In general, these fine particles stem from the burning of fuels. Therefore, vehicle exhaust and the burning of heating oils are some of the main sources in NYC. Indoor sources of PM~2.5~ are often a result of cooking, burning candles/fireplaces, and smoking. 
+
+ Black carbon is a component of fine particulate matter. These fine particles are formed as a result of incomplete combustion. One major source of black carbon in the city is from mobile vehicles which is why your exposure to black carbon is normally distinguishably higher during your commute. Additionally, the burning of diesel, especially in older diesel trucks, produces more black carbon which is why exposure is typically higher around truck routes and bridges. 
+
+##Minute Ventilation Maps
+
+The next map shows your minute ventilation in liters per minute for each of your commutes. Minute ventilation is the amount of air you inhale or exhale per minute. It is essentially a measurement of how hard you are breathing, with the higher ventilation rate equaling heavier breathing. Minute ventilation varies between individuals based on lung size and level of fitness, with larger and more fit individuals being able to achieve higher rates. An average rate during rest is around 6.0 L/min, and during moderate exercise the average is around 60 L/min. Maximal exercise typically results in a rate over 90 L/min in healthy individuals. The maximum minute ventilate an adult can achieve during maximal exercise is around 180 L/min for males and 145 L/min for females.
+
+
+The Hexoskin Shirt collects the minute ventilation data through sensors, therefore, the fit of the shirt is very important. If the bands and sensors are not in contact with the skin, or the shirt shifted, the shirt cannot generate accurate data. We used the data collected from the validation of the shirt to help identify and correct these instances. 
+
+##PM~2.5~ and BC Dose Maps
+
+The last map shows the potential inhaled dose of PM~2.5~ and BC in nanograms per minute for each of your commutes. The potential inhaled dose is a function of the amount of PM~2.5~/BC in the air multiplied by your minute ventilation at the time of exposure. Calculating dose allows us to estimate the amount of PM~2.5~/BC inhaled during your commute. 
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(leaflet)
+library(ggthemes)
+library(lubridate)
+
+map1 <- leaflet() %>%
+  addTiles(
+    urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
+    attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+  ) %>% clearBounds()
+
+bike1125_sec <- read.csv("bike1125_sec.csv")
+
+
+
+
+bike1125_sec$PM_cat <- factor(bike1125_sec$PM_cat, levels = c("<10", "10-25", "25-50", ">50"))
+bike1125_sec$MV_cat <- factor(bike1125_sec$MV_cat , levels = c("3-35", "35-50", "50-70", "70-170"))  
+bike1125_sec$PMdose_cat <-factor(bike1125_sec$PMdose_cat, levels = c("<200", "200-350", "350-500", ">500"))
+bike1125_sec$BC_cat <- factor(bike1125_sec$BC_cat, levels = c("<1", "1-2", "2-4", ">4"))
+bike1125_sec$BCdose_cat <-factor(bike1125_sec$BCdose_cat, levels = c("0-40", "40-100", "100-200", ">200"))
+
+bike1125_sec$tod <- factor(bike1125_sec$tod, levels = c("Morning", "Evening"))
+
+bike1125_sec_s1_morn <- subset(bike1125_sec, session== "1" & tod== "Morning")
+bike1125_sec_s1_eve <- subset(bike1125_sec, session== "1" & tod== "Evening")
+bike1125_sec_s2_morn <- subset(bike1125_sec, session== "2" & tod== "Morning")
+bike1125_sec_s2_eve <- subset(bike1125_sec, session== "2" & tod== "Evening")
+bike1125_sec_s3_morn <- subset(bike1125_sec, session== "3" & tod== "Morning")
+bike1125_sec_s3_eve <- subset(bike1125_sec, session== "3" & tod== "Evening")
+bike1125_sec_s4_morn <- subset(bike1125_sec, session== "4" & tod== "Morning")
+bike1125_sec_s4_eve <- subset(bike1125_sec, session== "4" & tod== "Evening")
+bike1125_sec_s5_morn <- subset(bike1125_sec, session== "5" & tod== "Morning")
+bike1125_sec_s5_eve <- subset(bike1125_sec, session== "5" & tod== "Evening")
+bike1125_sec_s6_morn <- subset(bike1125_sec, session== "6" & tod== "Morning")
+bike1125_sec_s6_eve <- subset(bike1125_sec, session== "6" & tod== "Evening")
+
+
+
+pal3 <- colorFactor(c("#00FF00","#FFFF00", "#FF6600","#CC0000" ), levels = c("<10", "10-25", "25-50", ">50"), na.color = NA)
+
+pal4 <- colorFactor(c("#00FF00","#FFFF00", "#FF6600","#CC0000" ), levels = c("<1", "1-2", "2-4", ">4"), na.color = NA)
+
+pal5 <- colorFactor(c("#00FF00","#FFFF00", "#FF6600","#CC0000" ), levels = c("3-35", "35-50", "50-70", "70-170"), na.color = NA)
+
+pal6 <- colorFactor(c("#00FF00","#FFFF00", "#FF6600","#CC0000" ), levels = c("<200", "200-350", "350-500", ">500"), na.color = NA)
+
+pal7 <- colorFactor(c("#00FF00","#FFFF00", "#FF6600","#CC0000" ), levels = c("0-40", "40-100", "100-200", ">200"), na.color = NA)
+
+
+
+```
+##Session 1
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal3(PM_cat), radius=2,
+                           stroke=F, group = "PM2.5 Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_morn)%>%
+  setView(median(bike1125_sec_s1_morn$longitude, na.rm=T),median(bike1125_sec_s1_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal3(PM_cat), radius=2,
+                           stroke=F, group = "PM2.5 Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_eve)%>%
+  setView(median(bike1125_sec_s1_eve$longitude, na.rm=T),median(bike1125_sec_s1_eve$latitude, na.rm=T), zoom=14)%>%
+  
+   addCircleMarkers(~longitude, ~latitude , color = ~pal4(BC_cat), radius=2,
+                           stroke=F, group = "BC Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_morn)%>%
+  setView(median(bike1125_sec_s1_morn$longitude, na.rm=T),median(bike1125_sec_s1_morn$latitude, na.rm=T), zoom=14)%>%
+   addCircleMarkers(~longitude, ~latitude , color = ~pal4(BC_cat), radius=2,
+                           stroke=F, group = "BC Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_eve)%>%
+  setView(median(bike1125_sec_s1_eve$longitude, na.rm=T),median(bike1125_sec_s1_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("PM2.5 Morning", "PM2.5 Evening", "BC Morning", "BC Evening"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal4, values= bike1125_sec_s1_morn$BC_cat, group = "BC Morning",  title="Session 1: BC Concentration (ug/m^3)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal4, values= bike1125_sec_s1_eve$BC_cat, group = "BC Evening",  title="Session 1: BC Concentration (ug/m^3)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal3, values= bike1125_sec_s1_morn$PM_cat, group = "PM2.5 Morning",  title="Session 1: PM 2.5 Concentration (ug/m^3)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal3, values= bike1125_sec_s1_eve$PM_cat, group = "PM2.5 Evening",  title="Session 1: PM 2.5 Concentration (ug/m^3)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+  
+
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal5(MV_cat), radius=2,
+                           stroke=F, group = "Morning Minute Ventilation", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_morn)%>%
+  setView(median(bike1125_sec_s1_morn$longitude, na.rm=T),median(bike1125_sec_s1_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal5(MV_cat), radius=2,
+                           stroke=F, group = "Evening Minute Ventilation", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_eve)%>%
+  setView(median(bike1125_sec_s1_eve$longitude, na.rm=T),median(bike1125_sec_s1_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  
+  addLayersControl(
+    overlayGroups = c("Morning Minute Ventilation", "Evening Minute Ventilation"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal5, values= bike1125_sec_s1_morn$MV_cat, group = "Morning Minute Ventilation",  title="Minute Ventilation (L/min)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal5, values= bike1125_sec_s1_morn$MV_cat, group = "Evening Minute Ventilation",  title="Minute Ventilation (L/min)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)
+  
+
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal6(PMdose_cat), radius=2,
+                           stroke=F, group = "PM2.5 dose Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_morn)%>%
+  setView(median(bike1125_sec_s1_morn$longitude, na.rm=T),median(bike1125_sec_s1_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal6(PMdose_cat), radius=2,
+                           stroke=F, group = "PM2.5 dose Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_eve)%>%
+  setView(median(bike1125_sec_s1_eve$longitude, na.rm=T),median(bike1125_sec_s1_eve$latitude, na.rm=T), zoom=14)%>%
+  
+   addCircleMarkers(~longitude, ~latitude , color = ~pal7(BCdose_cat), radius=2,
+                           stroke=F, group = "BC dose Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_morn)%>%
+  setView(median(bike1125_sec_s1_morn$longitude, na.rm=T),median(bike1125_sec_s1_morn$latitude, na.rm=T), zoom=14)%>%
+   addCircleMarkers(~longitude, ~latitude , color = ~pal7(BCdose_cat), radius=2,
+                           stroke=F, group = "BC dose Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s1_eve)%>%
+  setView(median(bike1125_sec_s1_eve$longitude, na.rm=T),median(bike1125_sec_s1_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("PM2.5 dose Morning", "PM2.5 dose Evening", "BC dose Morning", "BC dose Evening"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal7, values= bike1125_sec_s1_morn$BCdose_cat, group = "BC dose Morning",  title="BC dose ng/min",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal7, values= bike1125_sec_s1_eve$BCdose_cat, group = "BC dose Evening",  title="BC dose ng/min",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal6, values= bike1125_sec_s1_morn$PMdose_cat, group = "PM2.5 dose Morning",  title="PM 2.5 dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal6, values= bike1125_sec_s1_eve$PMdose_cat, group = "PM2.5 dose Evening",  title="PM 2.5 dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+  
+
+  
+
+```
+
+
+
+##Session 2
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal3(PM_cat), radius=2,
+                           stroke=F, group = "PM2.5 Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_morn)%>%
+  setView(median(bike1125_sec_s2_morn$longitude, na.rm=T),median(bike1125_sec_s2_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal3(PM_cat), radius=2,
+                           stroke=F, group = "PM2.5 Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_eve)%>%
+  setView(median(bike1125_sec_s2_eve$longitude, na.rm=T),median(bike1125_sec_s2_eve$latitude, na.rm=T), zoom=14)%>%
+  
+   addCircleMarkers(~longitude, ~latitude , color = ~pal4(BC_cat), radius=2,
+                           stroke=F, group = "BC Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_morn)%>%
+  setView(median(bike1125_sec_s2_morn$longitude, na.rm=T),median(bike1125_sec_s2_morn$latitude, na.rm=T), zoom=14)%>%
+   addCircleMarkers(~longitude, ~latitude , color = ~pal4(BC_cat), radius=2,
+                           stroke=F, group = "BC Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_eve)%>%
+  setView(median(bike1125_sec_s2_eve$longitude, na.rm=T),median(bike1125_sec_s2_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("PM2.5 Morning", "PM2.5 Evening", "BC Morning", "BC Evening"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal4, values= bike1125_sec_s2_morn$BC_cat, group = "BC Morning",  title="Session 2: BC Concentration (ug/m^3)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal4, values= bike1125_sec_s2_eve$BC_cat, group = "BC Evening",  title="Session 2: BC Concentration (ug/m^3)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal3, values= bike1125_sec_s2_morn$PM_cat, group = "PM2.5 Morning",  title="Session 2: PM 2.5 Concentration (ug/m^3)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal3, values= bike1125_sec_s2_eve$PM_cat, group = "PM2.5 Evening",  title="Session 2: PM 2.5 Concentration (ug/m^3)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+  
+
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal5(MV_cat), radius=2,
+                           stroke=F, group = "Morning Minute Ventilation", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_morn)%>%
+  setView(median(bike1125_sec_s2_morn$longitude, na.rm=T),median(bike1125_sec_s2_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal5(MV_cat), radius=2,
+                           stroke=F, group = "Evening Minute Ventilation", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_eve)%>%
+  setView(median(bike1125_sec_s2_eve$longitude, na.rm=T),median(bike1125_sec_s2_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  
+  addLayersControl(
+    overlayGroups = c("Morning Minute Ventilation", "Evening Minute Ventilation"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal5, values= bike1125_sec_s2_morn$MV_cat, group = "Morning Minute Ventilation",  title="Minute Ventilation (L/min)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal5, values= bike1125_sec_s2_morn$MV_cat, group = "Evening Minute Ventilation",  title="Minute Ventilation (L/min)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)
+  
+
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal6(PMdose_cat), radius=2,
+                           stroke=F, group = "PM2.5 dose Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_morn)%>%
+  setView(median(bike1125_sec_s2_morn$longitude, na.rm=T),median(bike1125_sec_s2_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal6(PMdose_cat), radius=2,
+                           stroke=F, group = "PM2.5 dose Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_eve)%>%
+  setView(median(bike1125_sec_s2_eve$longitude, na.rm=T),median(bike1125_sec_s2_eve$latitude, na.rm=T), zoom=14)%>%
+  
+   addCircleMarkers(~longitude, ~latitude , color = ~pal7(BCdose_cat), radius=2,
+                           stroke=F, group = "BC dose Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_morn)%>%
+  setView(median(bike1125_sec_s2_morn$longitude, na.rm=T),median(bike1125_sec_s2_morn$latitude, na.rm=T), zoom=14)%>%
+   addCircleMarkers(~longitude, ~latitude , color = ~pal7(BCdose_cat), radius=2,
+                           stroke=F, group = "BC dose Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s2_eve)%>%
+  setView(median(bike1125_sec_s2_eve$longitude, na.rm=T),median(bike1125_sec_s2_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("PM2.5 dose Morning", "PM2.5 dose Evening", "BC dose Morning", "BC dose Evening"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal7, values= bike1125_sec_s2_morn$BCdose_cat, group = "BC dose Morning",  title="BC dose ng/min",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal7, values= bike1125_sec_s2_eve$BCdose_cat, group = "BC dose Evening",  title="BC dose ng/min",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal6, values= bike1125_sec_s2_morn$PMdose_cat, group = "PM2.5 dose Morning",  title="PM 2.5 dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal6, values= bike1125_sec_s2_eve$PMdose_cat, group = "PM2.5 dose Evening",  title="PM 2.5 dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+  
+
+  
+
+```
+
+
+##Session 3
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal3(PM_cat), radius=2,
+                           stroke=F, group = "PM2.5 Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s3_morn)%>%
+  setView(median(bike1125_sec_s3_morn$longitude, na.rm=T),median(bike1125_sec_s3_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  
+   addCircleMarkers(~longitude, ~latitude , color = ~pal4(BC_cat), radius=2,
+                           stroke=F, group = "BC Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s3_morn)%>%
+  setView(median(bike1125_sec_s3_morn$longitude, na.rm=T),median(bike1125_sec_s3_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("PM2.5 Morning",  "BC Morning"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal4, values= bike1125_sec_s3_morn$BC_cat, group = "BC Morning",  title="Session 3: BC Concentration (ug/m^3)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+   addLegend("topleft", pal = pal3, values= bike1125_sec_s3_morn$PM_cat, group = "PM2.5 Morning",  title="Session 3: PM 2.5 Concentration (ug/m^3)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal5(MV_cat), radius=2,
+                           stroke=F, group = "Morning Minute Ventilation", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s3_morn)%>%
+  setView(median(bike1125_sec_s3_morn$longitude, na.rm=T),median(bike1125_sec_s3_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("Morning Minute Ventilation"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal5, values= bike1125_sec_s3_morn$MV_cat, group = "Morning Minute Ventilation",  title="Minute Ventilation (L/min)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)
+  
+
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal6(PMdose_cat), radius=2,
+                           stroke=F, group = "PM2.5 dose Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s3_morn)%>%
+  setView(median(bike1125_sec_s3_morn$longitude, na.rm=T),median(bike1125_sec_s3_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  
+   addCircleMarkers(~longitude, ~latitude , color = ~pal7(BCdose_cat), radius=2,
+                           stroke=F, group = "BC dose Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s3_morn)%>%
+  setView(median(bike1125_sec_s3_morn$longitude, na.rm=T),median(bike1125_sec_s3_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("PM2.5 dose Morning",  "BC dose Morning"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal7, values= bike1125_sec_s3_morn$BCdose_cat, group = "BC dose Morning",  title="BC dose ng/min",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+   addLegend("topleft", pal = pal6, values= bike1125_sec_s3_morn$PMdose_cat, group = "PM2.5 dose Morning",  title="PM 2.5 dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+  
+
+  
+```
+
+##Session 4
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal3(PM_cat), radius=2,
+                           stroke=F, group = "PM2.5 Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s4_morn)%>%
+  setView(median(bike1125_sec_s4_morn$longitude, na.rm=T),median(bike1125_sec_s4_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal3(PM_cat), radius=2,
+                           stroke=F, group = "PM2.5 Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s4_eve)%>%
+  setView(median(bike1125_sec_s4_eve$longitude, na.rm=T),median(bike1125_sec_s4_eve$latitude, na.rm=T), zoom=14)%>%
+  
+   addCircleMarkers(~longitude, ~latitude , color = ~pal4(BC_cat), radius=2,
+                           stroke=F, group = "BC Morning", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s4_morn)%>%
+  setView(median(bike1125_sec_s4_morn$longitude, na.rm=T),median(bike1125_sec_s4_morn$latitude, na.rm=T), zoom=14)%>%
+   addCircleMarkers(~longitude, ~latitude , color = ~pal4(BC_cat), radius=2,
+                           stroke=F, group = "BC Evening", weight=2, opacity=.8,
+                           fillOpacity=.8, data=bike1125_sec_s4_eve)%>%
+  setView(median(bike1125_sec_s4_eve$longitude, na.rm=T),median(bike1125_sec_s4_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("PM2.5 Morning", "PM2.5 Evening", "BC Morning", "BC Evening"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+addLegend("bottomleft", pal = pal4, values= bike1125_sec_s4_morn$BC_cat, group = "BC Morning",  title="Session 4: BC Concentration (ug/m^3)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal4, values= bike1125_sec_s4_eve$BC_cat, group = "BC Evening",  title="Session 4: BC Concentration (ug/m^3)",
+          layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal3, values= bike1125_sec_s4_morn$PM_cat, group = "PM2.5 Morning",  title="Session 4: PM 2.5 Concentration (ug/m^3)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+   addLegend("topleft", pal = pal3, values= bike1125_sec_s4_eve$PM_cat, group = "PM2.5 Evening",  title="Session 4: PM 2.5 Concentration (ug/m^3)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal5(MV_cat), radius=2,
+                   stroke=F, group = "Morning Minute Ventilation", weight=2, opacity=.8,
+                   fillOpacity=.8, data=bike1125_sec_s4_morn)%>%
+  setView(median(bike1125_sec_s4_morn$longitude, na.rm=T),median(bike1125_sec_s4_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal5(MV_cat), radius=2,
+                   stroke=F, group = "Evening Minute Ventilation", weight=2, opacity=.8,
+                   fillOpacity=.8, data=bike1125_sec_s4_eve)%>%
+  setView(median(bike1125_sec_s4_eve$longitude, na.rm=T),median(bike1125_sec_s4_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  
+  addLayersControl(
+    overlayGroups = c("Morning Minute Ventilation", "Evening Minute Ventilation"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+  addLegend("bottomleft", pal = pal5, values= bike1125_sec_s4_morn$MV_cat, group = "Morning Minute Ventilation",  title="Minute Ventilation (L/min)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal5, values= bike1125_sec_s4_morn$MV_cat, group = "Evening Minute Ventilation",  title="Minute Ventilation (L/min)",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+
+
+
+map1%>% addProviderTiles(providers$Hydda.Full)  %>%  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal6(PMdose_cat), radius=2,
+                   stroke=F, group = "PM2.5 dose Morning", weight=2, opacity=.8,
+                   fillOpacity=.8, data=bike1125_sec_s4_morn)%>%
+  setView(median(bike1125_sec_s4_morn$longitude, na.rm=T),median(bike1125_sec_s4_morn$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal6(PMdose_cat), radius=2,
+                   stroke=F, group = "PM2.5 dose Evening", weight=2, opacity=.8,
+                   fillOpacity=.8, data=bike1125_sec_s4_eve)%>%
+  setView(median(bike1125_sec_s4_eve$longitude, na.rm=T),median(bike1125_sec_s4_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  addCircleMarkers(~longitude, ~latitude , color = ~pal7(BCdose_cat), radius=2,
+                   stroke=F, group = "BC dose Morning", weight=2, opacity=.8,
+                   fillOpacity=.8, data=bike1125_sec_s4_morn)%>%
+  setView(median(bike1125_sec_s4_morn$longitude, na.rm=T),median(bike1125_sec_s4_morn$latitude, na.rm=T), zoom=14)%>%
+  addCircleMarkers(~longitude, ~latitude , color = ~pal7(BCdose_cat), radius=2,
+                   stroke=F, group = "BC dose Evening", weight=2, opacity=.8,
+                   fillOpacity=.8, data=bike1125_sec_s4_eve)%>%
+  setView(median(bike1125_sec_s4_eve$longitude, na.rm=T),median(bike1125_sec_s4_eve$latitude, na.rm=T), zoom=14)%>%
+  
+  addLayersControl(
+    overlayGroups = c("PM2.5 dose Morning", "PM2.5 dose Evening", "BC dose Morning", "BC dose Evening"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+  addLegend("bottomleft", pal = pal7, values= bike1125_sec_s4_morn$BCdose_cat, group = "BC dose Morning",  title="BC dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>%
+  addLegend("bottomleft", pal = pal7, values= bike1125_sec_s4_eve$BCdose_cat, group = "BC dose Evening",  title="BC dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+  addLegend("topleft", pal = pal6, values= bike1125_sec_s4_morn$PMdose_cat, group = "PM2.5 dose Morning",  title="PM 2.5 dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)%>% 
+  addLegend("topleft", pal = pal6, values= bike1125_sec_s4_eve$PMdose_cat, group = "PM2.5 dose Evening",  title="PM 2.5 dose ng/min",
+            layerId="colorLegend",na.label = "No Data", opacity=1)
+
+
+```
+
